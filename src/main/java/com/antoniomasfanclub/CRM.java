@@ -18,6 +18,15 @@ public class CRM {
         this.accounts = new HashMap<>();
     }
 
+    public void convertLeadToOpportunity(int leadId, Opportunity opportunity) {
+        if (leads.get(leadId) == null) throw new IllegalArgumentException("No leads found with ID "+leadId);
+        Contact contact = new Contact(leads.get(leadId));
+        addContact(contact);
+        opportunity.setContact(contact);
+        deleteLead(leadId);
+    }
+
+
     public void addLead(Lead lead) {
         leads.put(lead.getId(), lead);
     }
