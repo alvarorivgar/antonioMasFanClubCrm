@@ -1,6 +1,8 @@
 package com.antoniomasfanclub;
 
+import java.security.Key;
 import java.util.List;
+import java.util.Map;
 
 public class Account {
     private int id;
@@ -8,10 +10,11 @@ public class Account {
     private int employeeCount;
     private String city;
     private String country;
-    private List<Contact> contactList;
-    private List<Opportunity> opportunityList;
+    private Map<Integer,Contact> contactList;
+    private Map<Integer, Opportunity> opportunityList;
 
-    public Account(int id, Industry industry, int employeeCount, String city, String country, List<Contact> contactList, List<Opportunity> opportunityList) {
+//Constructor
+    public Account(int id, Industry industry, int employeeCount, String city, String country, Map<Integer,Contact> contactList, Map<Integer,Opportunity> opportunityList) {
         this.id = id;
         this.industry = industry;
         this.employeeCount = employeeCount;
@@ -20,7 +23,31 @@ public class Account {
         this.contactList = contactList;
         this.opportunityList = opportunityList;
     }
+//Methods
+    public void addContact(Integer key, Contact contact){
+        contactList.put(key, contact);
+    }
 
+    public void removeContact(Integer key){
+        contactList.remove(key);
+    }
+
+    public void getContact(Integer key){
+        System.out.println(contactList.get(key));
+    }
+    public void addOpportunity(Integer key){
+        opportunityList.remove(key);
+    }
+
+    public void removeOpportunity(Integer key){
+        opportunityList.remove(key);
+    }
+
+    public void getOpportunity(Integer key, Opportunity opportunity){
+        System.out.println(opportunityList.get(key));
+    }
+
+//Getters & Setters
     public int getId() {
         return this.id;
     }
