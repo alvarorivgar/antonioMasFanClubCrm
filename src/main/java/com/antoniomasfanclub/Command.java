@@ -3,6 +3,7 @@ package com.antoniomasfanclub;
 public enum Command {
     NEW_LEAD("new lead"),
     LIST_LEADS("list leads"),
+    CONVERT("convert"),
     QUIT("quit");
 
 

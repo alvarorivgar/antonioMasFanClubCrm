@@ -4,7 +4,7 @@ public class Lead extends Person {
     private static int generatedLeads = 0;
 
     public Lead() {
-        super(generateId(), "", "", "", "");
+        super(generateId());
     }
 
     public Lead(String name, String phoneNumber, String email, String companyName) {
