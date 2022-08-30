@@ -13,7 +13,7 @@ public class Account {
     private Map<Integer,Contact> contactList;
     private Map<Integer, Opportunity> opportunityList;
 
-//Constructor
+    //Constructor
     public Account(int id, Industry industry, int employeeCount, String city, String country, Map<Integer,Contact> contactList, Map<Integer,Opportunity> opportunityList) {
         this.id = id;
         this.industry = industry;
@@ -88,19 +88,20 @@ public class Account {
         this.country = country;
     }
 
-    public List<Contact> getContactList() {
-        return this.contactList;
+    public Map<Integer, Contact> getContactList() {
+        return contactList;
     }
 
-    public void setContactList(List<Contact> contactList) {
+    public void setContactList(Map<Integer, Contact> contactList) {
         this.contactList = contactList;
     }
 
-    public List<Opportunity> getOpportunityList() {
-        return this.opportunityList;
+    public Map<Integer, Opportunity> getOpportunityList() {
+        return opportunityList;
     }
 
-    public void setOpportunityList(List<Opportunity> opportunityList) {
+    public void setOpportunityList(Map<Integer, Opportunity> opportunityList) {
         this.opportunityList = opportunityList;
     }
+
 }
