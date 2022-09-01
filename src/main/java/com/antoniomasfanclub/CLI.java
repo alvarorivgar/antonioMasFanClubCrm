@@ -23,8 +23,9 @@ public class CLI {
     }
 
     private void printCRMOptions() {
+        printer.println();
         printer.println("- To create a new lead, type '" + colourString(Colours.GREEN, Command.NEW_LEAD.toString()) + "' ");
-        printer.println("- To see all current leads, type '" + colourString(Colours.GREEN, Command.LIST_LEADS.toString()) + "' ");
+        printer.println("- To see all current leads, contacts, accounts or opportunities, type '" + colourString(Colours.GREEN, Command.LIST_LEADS.toString()) + "' or the equivalent");
         printer.println("- To convert a lead into an opportunity type '" + colourString(Colours.GREEN, Command.CONVERT.toString()) + "' followed by the " + colourString(Colours.GREEN, "lead id"));
         printer.println("- To quit the CRM, type type '" + colourString(Colours.RED, Command.QUIT.toString()) + "' ");
     }
@@ -45,6 +46,18 @@ public class CLI {
                 case "list":
                     if (userInput[1].equals("leads")) {
                         printList(this.crm.getLeads());
+                        break;
+                    }
+                    if (userInput[1].equals("opportunities")) {
+                        printList(this.crm.getOpportunities());
+                        break;
+                    }
+                    if (userInput[1].equals("contacts")) {
+                        printList(this.crm.getContacts());
+                        break;
+                    }
+                    if (userInput[1].equals("accounts")) {
+                        printList(this.crm.getAccounts());
                         break;
                     }
                 case "convert":
@@ -99,8 +112,8 @@ public class CLI {
         opportunity.setContact(contact);
         printer.println("Creating a new " + colourString(Colours.GREEN, "opportunity"));
         updateIntegerKey("Please input this opportunity's quantity", opportunity::setQuantity);
-        updateEnumKey(new Product[]{Product.HYBRID, Product.FLATBED, Product.BOX}, opportunity::setProduct, opportunity::getProduct);
-        updateEnumKey(new Status[]{Status.OPEN, Status.CLOSED_WON, Status.CLOSED_LOST}, opportunity::setStatus, opportunity::getStatus);
+        updateEnumKey(Product.BOX, opportunity::setProduct, opportunity::getProduct);
+        updateEnumKey(Status.OPEN, opportunity::setStatus, opportunity::getStatus);
         return opportunity;
     }
 
@@ -109,7 +122,7 @@ public class CLI {
         printer.println("Creating the associated " + colourString(Colours.CYAN, "account"));
         account.addContact(contact);
         account.addOpportunity(opportunity);
-        updateEnumKey(new Industry[]{Industry.MEDICAL, Industry.MANUFACTURING, Industry.ECOMMERCE, Industry.PRODUCE, Industry.OTHER}, account::setIndustry, account::getIndustry);
+        updateEnumKey(Industry.MEDICAL, account::setIndustry, account::getIndustry);
         updateStringKey("Please introduce this account's " + colourString(Colours.GREEN, "🇺🇳 country") + ":", account::setCountry);
         updateStringKey("Please introduce this account's " + colourString(Colours.CYAN, "🏬 city") + ":", account::setCity);
         updateIntegerKey("Please introduce this account's " + colourString(Colours.YELLOW, "👔 employee count") + ":", account::setEmployeeCount);
@@ -117,6 +130,8 @@ public class CLI {
     }
 
     private <T> void printList(Map<Integer, T> list) {
+        if (list.keySet().size() == 0 )
+            printer.println("There are no items in this list.");
         for (int key : list.keySet()) {
             printer.println(list.get(key));
         }
@@ -154,19 +169,20 @@ public class CLI {
         });
     }
 
-    private <T> void updateEnumKey(T[] values, Consumer<T> setter, Supplier<T> getter) {
+    private <T extends Enum<T>> void updateEnumKey(Enum<T> enumExample, Consumer<T> setter, Supplier<T> getter) {
         do {
             int nextInt = 0;
+            T[] enumValues = enumExample.getDeclaringClass().getEnumConstants();
             printer.println("Please enter the number of the product for this opportunity.");
-            for (int i = 1; i <= values.length; i++) {
-                printer.println(colourString(Colours.CYAN, " " + i + "- ") + values[i - 1]);
+            for (int i = 1; i <= enumValues.length; i++) {
+                printer.println(colourString(Colours.CYAN, " " + i + "- ") + enumValues[i - 1]);
             }
             if (scanner.hasNextInt()) {
                 nextInt = scanner.nextInt();
                 scanner.nextLine();
             } else printer.println("Only integers are allowed as options, please try again.");
-            if (nextInt > 0 && nextInt <= values.length) {
-                setter.accept(values[nextInt - 1]);
+            if (nextInt > 0 && nextInt <= enumValues.length) {
+                setter.accept(enumValues[nextInt - 1]);
             }
         } while (getter.get() == null);
     }
@@ -176,8 +192,20 @@ public class CLI {
     }
 
     private void populateCRM() {
+        Contact contact1 = new Contact(new Lead("Esteban Coestáocupado", "687493822", "esteban@email.com", "BBVA"));
+        Contact contact2 = new Contact(new Lead("Federico Trillo", "675392876", "fede@email.com", "Construcciones Trillo S.L."));
+
         this.crm.addLead(new Lead("Benito Pérez", "636227551", "beni@email.com", "MediaMarkt"));
         this.crm.addLead(new Lead("Coronel Tapioca", "636726671", "tapi@email.com", "Inditex"));
         this.crm.addLead(new Lead("Juan Benigómez", "637538792", "per@email.com", "Keychron"));
+
+        this.crm.addOpportunity(new Opportunity(3, Product.FLATBED, Status.OPEN, contact1));
+        this.crm.addOpportunity(new Opportunity(5, Product.HYBRID, Status.CLOSED_WON, contact2));
+
+        this.crm.addContact(contact1);
+        this.crm.addContact(contact2);
+
+        this.crm.addAccount(new Account(Industry.MANUFACTURING, 135, "Barcelona", "Spain"));
+        this.crm.addAccount(new Account(Industry.ECOMMERCE, 56, "Madrid", "Spain"));
     }
 }
