@@ -10,4 +10,8 @@ public class Contact extends Person{
     private static int generateId(){
         return ++generatedLeads;
     }
+
+    public static int getGeneratedLeads() {
+        return generatedLeads;
+    }
 }

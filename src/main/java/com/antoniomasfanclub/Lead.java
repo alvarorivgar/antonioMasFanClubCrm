@@ -11,6 +11,10 @@ public class Lead extends Person {
         super(generateId(), name, phoneNumber, email, companyName);
     }
 
+    public static int getGeneratedLeads() {
+        return generatedLeads;
+    }
+
     private static int generateId(){
         return ++generatedLeads;
     }

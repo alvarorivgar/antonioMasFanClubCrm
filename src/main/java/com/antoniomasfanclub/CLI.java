@@ -22,21 +22,18 @@ public class CLI {
         populateCRM();
     }
 
-    private void printCRMOptions() {
-        printer.println();
-        printer.println("- To create a new lead, type '" + colourString(Colours.GREEN, Command.NEW_LEAD.toString()) + "' ");
-        printer.println("- To see all current leads, contacts, accounts or opportunities, type '" + colourString(Colours.GREEN, Command.LIST_LEADS.toString()) + "' or the equivalent");
-        printer.println("- To convert a lead into an opportunity type '" + colourString(Colours.GREEN, Command.CONVERT.toString()) + "' followed by the " + colourString(Colours.GREEN, "lead id"));
-        printer.println("- To quit the CRM, type type '" + colourString(Colours.RED, Command.QUIT.toString()) + "' ");
-    }
 
+    /**
+     * The core method of the CRM, and the only public one. Creates an infinite loop that translates user input into
+     * actions, and only ends when instructed to by the user,
+     */
     public void startCRM() {
         printer.println(Colours.BACKGROUND_YELLOW + "@@@@@@@@@@@@ Welcome to the " + Colours.RED + "🍆Antonio Mas👼🏻 Fan Club CRM®️" + Colours.BLACK + "! @@@@@@@@@@@@" + Colours.RESET);
         boolean run = true;
 
         do {
             printCRMOptions();
-            String[] userInput = scanner.nextLine().trim().toLowerCase().split(" ");
+            String[] userInput = scanner.nextLine().trim().toLowerCase().split("[ -]");
             switch (userInput[0]) {
                 case "new":
                     if (userInput[1].equals("lead")) {
@@ -63,6 +60,9 @@ public class CLI {
                 case "convert":
                     convertLead(userInput[1]);
                     break;
+                case "closed":
+                    closeOpportunity(userInput);
+                    break;
                 case "quit":
                     run = false;
                     break;
@@ -73,6 +73,21 @@ public class CLI {
         printer.println("Quitting the CRM. " + colourString(Colours.YELLOW, "Have a great day!"));
     }
 
+    /**
+     * To avoid clogging the previous method, the options menu is extracted to an independent method.
+     */
+    private void printCRMOptions() {
+        printer.println();
+        printer.println("- To create a new lead, type '" + colourString(Colours.GREEN, Command.NEW_LEAD.toString()) + "' ");
+        printer.println("- To see all current leads, contacts, accounts or opportunities, type '" + colourString(Colours.GREEN, Command.LIST_LEADS.toString()) + "' or the equivalent");
+        printer.println("- To convert a lead into an opportunity type '" + colourString(Colours.GREEN, Command.CONVERT.toString()) + "' followed by the " + colourString(Colours.GREEN, "lead id"));
+        printer.println("- To close an opportunity, type '" + colourString(Colours.RED, "closed-lost") + "' or '" + colourString(Colours.GREEN, "closed-won") + "' followed by the " + colourString(Colours.GREEN, "opportunity id"));
+        printer.println("- To quit the CRM, type '" + colourString(Colours.RED, Command.QUIT.toString()) + "' ");
+    }
+
+    /**
+     * Creates a new lead using user console input to assign its values.
+     */
     private void createNewLead() {
         Lead lead = new Lead();
         updateStringKey("Please introduce this lead's " + colourString(Colours.CYAN, "👤 name") + ":", lead::setName);
@@ -84,6 +99,11 @@ public class CLI {
         printer.println(colourString(Colours.GREEN, "Success!") + " Lead with ID " + colourString(Colours.CYAN, lead.getId() + "") + " was added to the leads list.");
     }
 
+    /**
+     * Converts an existing lead into an opportunity, generating a new account and contact in the process.
+     *
+     * @param key the ID of the lead instance to convert into an opportunity
+     */
     private void convertLead(String key) {
         try {
             Lead lead = this.crm.getLead(Integer.parseInt(key));
@@ -103,10 +123,16 @@ public class CLI {
 
             printer.println("Completed lead conversion to opportunity\n");
         } catch (IllegalArgumentException e) {
-            printer.println(colourString(Colours.RED, "Error") + " - " + e + "\n");
+            printer.println(colourString(Colours.RED, "Error") + " - " + e.getMessage() + "\n");
         }
     }
 
+    /**
+     * Creates a new Opportunity instance associated with a Contact instance.
+     *
+     * @param contact the Contact instance the new Opportunity should be associated with, based on the original Lead
+     * @return the created Opportunity instance
+     */
     private Opportunity createOpportunity(Contact contact) {
         Opportunity opportunity = new Opportunity();
         opportunity.setContact(contact);
@@ -117,6 +143,13 @@ public class CLI {
         return opportunity;
     }
 
+    /**
+     * Creates a new Account instance associated with a Contact and an Opportunity instances.
+     *
+     * @param contact     the Contact instance the new Account should be associated with, based on the original Lead
+     * @param opportunity the Opportunity instance the new Account should be associated with
+     * @return the created Account instance
+     */
     private Account createAccount(Contact contact, Opportunity opportunity) {
         Account account = new Account();
         printer.println("Creating the associated " + colourString(Colours.CYAN, "account"));
@@ -129,14 +162,44 @@ public class CLI {
         return account;
     }
 
+    /**
+     * Reads user input to find an opportunity and close it as instructed
+     *
+     * @param userInput String array ideally with: [1] 'won' or 'lost' strings, and [2] associated Opportunity id.
+     */
+    private void closeOpportunity(String[] userInput) {
+        try {
+            if (userInput[1].equals("lost")) {
+                this.crm.getOpportunity(Integer.parseInt(userInput[2])).setStatus(Status.CLOSED_LOST);
+            } else if (userInput[1].equals("won")) {
+                this.crm.getOpportunity(Integer.parseInt(userInput[2])).setStatus(Status.CLOSED_WON);
+            } else {
+                printer.println("Opportunities must be marked as " + colourString(Colours.RED, "lost") + " or " + colourString(Colours.GREEN, "won") + " when closing.");
+            }
+        } catch (IllegalArgumentException e) {
+            printer.println(e.getMessage());
+        }
+    }
+
+    /**
+     * Prints all the keys of any given Map onto the console.
+     *
+     * @param list Any kind of Map that you want to print on the console
+     */
     private <T> void printList(Map<Integer, T> list) {
-        if (list.keySet().size() == 0 )
+        if (list.keySet().size() == 0)
             printer.println("There are no items in this list.");
         for (int key : list.keySet()) {
             printer.println(list.get(key));
         }
     }
 
+    /**
+     * This method takes a generic function, and runs it until it no longer throws an exception.
+     *
+     * @param message      The message shown in the console before running the update method
+     * @param updateMethod A consumer, ideally a class setter.
+     */
     private void updateGenericKey(String message, Runnable updateMethod) {
         boolean wasUpdatedSuccessfully = false;
         do {
@@ -150,10 +213,22 @@ public class CLI {
         } while (!wasUpdatedSuccessfully);
     }
 
+    /**
+     * Enables a simple way to update String-based class instance properties from the console.
+     *
+     * @param message      The message shown in the console before running the update method
+     * @param updateMethod A consumer, ideally a class setter, that accepts a String param.
+     */
     private void updateStringKey(String message, Consumer<String> updateMethod) {
         updateGenericKey(message, () -> updateMethod.accept(scanner.nextLine()));
     }
 
+    /**
+     * Enables a simple way to update Integer-based class instance properties from the console.
+     *
+     * @param message      The message shown in the console before running the update method
+     * @param updateMethod A consumer, ideally a class setter, that accepts a n Integer param.
+     */
     private void updateIntegerKey(String message, Consumer<Integer> updateMethod) {
         updateGenericKey(message, () -> {
             boolean validInput = false;
@@ -169,6 +244,14 @@ public class CLI {
         });
     }
 
+    /**
+     * This method takes an enum key and a class instance's property's getter and setter to provide a standarised way to update
+     * enum based class properties.
+     *
+     * @param enumExample Any value for the enum of the class property you want to update
+     * @param setter      Setter method to update the enum-based class property
+     * @param getter      Getter method to check the enum-based class property
+     */
     private <T extends Enum<T>> void updateEnumKey(Enum<T> enumExample, Consumer<T> setter, Supplier<T> getter) {
         do {
             int nextInt = 0;
@@ -187,10 +270,20 @@ public class CLI {
         } while (getter.get() == null);
     }
 
+    /**
+     * This simple method lets us avoid having to append Reset for every colour we add.
+     *
+     * @param colour the desired colour for the string, with the Colour enum
+     * @param string the string you want to colour
+     * @return Coloured string
+     */
     protected static String colourString(Colours colour, String string) {
         return colour + string + Colours.RESET;
     }
 
+    /**
+     * Populate the CRM with dummy data so lists are not empty at app startup.
+     */
     private void populateCRM() {
         Contact contact1 = new Contact(new Lead("Esteban Coestáocupado", "687493822", "esteban@email.com", "BBVA"));
         Contact contact2 = new Contact(new Lead("Federico Trillo", "675392876", "fede@email.com", "Construcciones Trillo S.L."));
