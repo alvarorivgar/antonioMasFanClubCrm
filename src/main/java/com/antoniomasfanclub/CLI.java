@@ -306,7 +306,10 @@ public class CLI {
             if (scanner.hasNextInt()) {
                 nextInt = scanner.nextInt();
                 scanner.nextLine();
-            } else printer.println("Only integers are allowed as options, please try again.");
+            } else {
+                printer.println("Only integers are allowed as options, please try again.");
+                scanner.nextLine();
+            }
             if (nextInt > 0 && nextInt <= enumValues.length) {
                 setter.accept(enumValues[nextInt - 1]);
             }
