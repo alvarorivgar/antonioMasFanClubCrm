@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -34,40 +35,65 @@ public class CLI {
         do {
             printCRMOptions();
             String[] userInput = scanner.nextLine().trim().toLowerCase().split("[ -]");
-            switch (userInput[0]) {
-                case "new":
-                    if (userInput[1].equals("lead")) {
-                        createNewLead();
+            try {
+                switch (userInput[0]) {
+                    case "new":
+                        if (userInput[1].equals("lead")) {
+                            createNewLead();
+                            break;
+                        }
+                    case "lookup":
+                        if (userInput[1].equals("lead")) {
+                            printItem(() -> this.crm.getLead(Integer.parseInt(userInput[2])));
+                            break;
+                        }
+                        if (userInput[1].equals("opportunity")) {
+                            printItem(() -> this.crm.getOpportunity(Integer.parseInt(userInput[2])));
+                            break;
+                        }
+                        if (userInput[1].equals("contact")) {
+                            printItem(() -> this.crm.getContact(Integer.parseInt(userInput[2])));
+                            break;
+                        }
+                        if (userInput[1].equals("account")) {
+                            printItem(() -> this.crm.getAccount(Integer.parseInt(userInput[2])));
+                            break;
+                        }
+                        printer.println("Could not understand your input, please try again using " + colourString(Colours.CYAN, "lead") + ", " + colourString(Colours.CYAN, "contact") + ", " + colourString(Colours.CYAN, "account") + " or " + colourString(Colours.CYAN, "opportunity") + " followed by the id");
                         break;
-                    }
-                case "list":
-                    if (userInput[1].equals("leads")) {
-                        printList(this.crm.getLeads());
+                    case "list":
+                        if (userInput[1].equals("leads")) {
+                            printList(this.crm.getLeads());
+                            break;
+                        }
+                        if (userInput[1].equals("opportunities")) {
+                            printList(this.crm.getOpportunities());
+                            break;
+                        }
+                        if (userInput[1].equals("contacts")) {
+                            printList(this.crm.getContacts());
+                            break;
+                        }
+                        if (userInput[1].equals("accounts")) {
+                            printList(this.crm.getAccounts());
+                            break;
+                        }
+                        printer.println("Could not understand your input, please try again using " + colourString(Colours.CYAN, "leads") + ", " + colourString(Colours.CYAN, "contacts") + ", " + colourString(Colours.CYAN, "accounts") + " or " + colourString(Colours.CYAN, "opportunities") + ".");
                         break;
-                    }
-                    if (userInput[1].equals("opportunities")) {
-                        printList(this.crm.getOpportunities());
+                    case "convert":
+                        convertLead(userInput[1]);
                         break;
-                    }
-                    if (userInput[1].equals("contacts")) {
-                        printList(this.crm.getContacts());
+                    case "closed":
+                        closeOpportunity(userInput);
                         break;
-                    }
-                    if (userInput[1].equals("accounts")) {
-                        printList(this.crm.getAccounts());
+                    case "quit":
+                        run = false;
                         break;
-                    }
-                case "convert":
-                    convertLead(userInput[1]);
-                    break;
-                case "closed":
-                    closeOpportunity(userInput);
-                    break;
-                case "quit":
-                    run = false;
-                    break;
-                default:
-                    printer.println("Sorry, I do not understand '" + colourString(Colours.YELLOW, String.join(" ", userInput)) + "'. Could you try again?");
+                    default:
+                        printer.println("Sorry, I do not understand '" + colourString(Colours.YELLOW, String.join(" ", userInput)) + "'. Could you try again?");
+                }
+            } catch (Exception e) {
+                printer.println("Your command seems to be unrecognisable or incomplete. Please try again.");
             }
         } while (run);
         printer.println("Quitting the CRM. " + colourString(Colours.YELLOW, "Have a great day!"));
@@ -79,9 +105,10 @@ public class CLI {
     private void printCRMOptions() {
         printer.println();
         printer.println("- To create a new lead, type '" + colourString(Colours.GREEN, Command.NEW_LEAD.toString()) + "' ");
+        printer.println("- To see a specific lead, contact, account or opportunity, type '" + colourString(Colours.GREEN, Command.LOOKUP.toString()) + "' or the equivalent, followed by the "+colourString(Colours.GREEN, "item id"));
         printer.println("- To see all current leads, contacts, accounts or opportunities, type '" + colourString(Colours.GREEN, Command.LIST_LEADS.toString()) + "' or the equivalent");
         printer.println("- To convert a lead into an opportunity type '" + colourString(Colours.GREEN, Command.CONVERT.toString()) + "' followed by the " + colourString(Colours.GREEN, "lead id"));
-        printer.println("- To close an opportunity, type '" + colourString(Colours.RED, "closed-lost") + "' or '" + colourString(Colours.GREEN, "closed-won") + "' followed by the " + colourString(Colours.GREEN, "opportunity id"));
+        printer.println("- To close an opportunity, type '" + colourString(Colours.RED, Command.CLOSED_LOST.toString()) + "' or '" + colourString(Colours.GREEN, Command.CLOSED_WON.toString()) + "' followed by the " + colourString(Colours.GREEN, "opportunity id"));
         printer.println("- To quit the CRM, type '" + colourString(Colours.RED, Command.QUIT.toString()) + "' ");
     }
 
@@ -191,6 +218,19 @@ public class CLI {
             printer.println("There are no items in this list.");
         for (int key : list.keySet()) {
             printer.println(list.get(key));
+        }
+    }
+
+    /**
+     * This method enables us to reuse the logic to print single object instances into the console
+     *
+     * @param itemGetter getter for the object instance you want to print
+     */
+    private void printItem(Callable itemGetter) {
+        try {
+            printer.println(itemGetter.call());
+        } catch (Exception e) {
+            printer.println(e.getMessage() + "\n");
         }
     }
 

@@ -1,6 +1,5 @@
 package com.antoniomasfanclub;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,11 +24,17 @@ class AccountTest {
         assertEquals(Industry.MEDICAL, account1.getIndustry());
     }
 
-    @DisplayName("Test emplyeeAcount > 1")
+    @DisplayName("Test employeeAccount > 1")
     @Test
-    void test_employeeAcount_bigger_than_1(){
-        assertTrue(account1.getEmployeeCount() >1);
+    void test_employeeAccount_bigger_than_1(){
+        int newValue = 1;
+        account1.setEmployeeCount(newValue);
+        assertEquals(newValue, account1.getEmployeeCount());
     }
 
-
+    @DisplayName("Test employeeAccount > 1")
+    @Test
+    void test_employeeAccount_throws_when_less_than_1(){
+        assertThrows( IllegalArgumentException.class, ()->account1.setEmployeeCount(-1));
+    }
 }

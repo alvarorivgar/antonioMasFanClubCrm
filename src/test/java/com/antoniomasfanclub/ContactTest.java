@@ -8,18 +8,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ContactTest {
 
-    Lead lead = new Lead();
-    Contact contact = new Contact(lead);
+    Contact contact;
 
+    @BeforeEach
+    void setUp() {
+        contact = new Contact(new Lead("Benito Pérez", "636227551", "beni@email.com", "MediaMarkt"));
+    }
 
     @Test
     public void whenNameIsLessThenThree_shouldThrowIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class,() -> contact.setName("Ju"));
+        assertThrows(IllegalArgumentException.class,() -> contact.setName("El"));
     }
 
     @Test
     public void whenNameIsMoreThenThree_shouldNotThrowIllegalArgumentException() {
-        assertDoesNotThrow(() -> contact.setName("Julia"));
+        String newValue = "Eleven";
+        contact.setName(newValue);
+        assertEquals(newValue, contact.getName());
     }
 
     @Test
@@ -29,7 +34,9 @@ class ContactTest {
 
     @Test
     public void whenPhoneNumberIsMoreThenNine_shouldNotThrowIllegalArgumentException() {
-        assertDoesNotThrow(() -> contact.setPhoneNumber("640090909"));
+        String newValue = "640090909";
+        contact.setPhoneNumber(newValue);
+        assertEquals(newValue, contact.getPhoneNumber());
     }
 
     @Test
@@ -39,7 +46,9 @@ class ContactTest {
 
     @Test
     public void whenEmailIsValid_shouldNotThrowIllegalArgumentException() {
-        assertDoesNotThrow(() -> contact.setEmail("jo@jo.com"));
+        String newValue = "jo@jo.com";
+        contact.setEmail(newValue);
+        assertEquals(newValue, contact.getEmail());
     }
 
 }

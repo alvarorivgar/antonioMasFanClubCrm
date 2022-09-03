@@ -10,6 +10,11 @@ class LeadTest {
 
     Lead lead = new Lead();
 
+    @BeforeEach
+    void setUp() {
+        lead = new Lead("Benito Pérez", "636227551", "beni@email.com", "MediaMarkt");
+    }
+
     @Test
     public void whenNameIsLessThenThree_shouldThrowIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class,() -> lead.setName("El"));
@@ -17,7 +22,9 @@ class LeadTest {
 
     @Test
     public void whenNameIsMoreThenThree_shouldNotThrowIllegalArgumentException() {
-        assertDoesNotThrow(() -> lead.setName("Eleven"));
+        String newValue = "Eleven";
+        lead.setName(newValue);
+        assertEquals(newValue, lead.getName());
     }
 
     @Test
@@ -27,7 +34,9 @@ class LeadTest {
 
     @Test
     public void whenPhoneNumberIsMoreThenNine_shouldNotThrowIllegalArgumentException() {
-        assertDoesNotThrow(() -> lead.setPhoneNumber("640090909"));
+        String newValue = "640090909";
+        lead.setPhoneNumber(newValue);
+        assertEquals(newValue, lead.getPhoneNumber());
     }
 
     @Test
@@ -37,7 +46,9 @@ class LeadTest {
 
     @Test
     public void whenEmailIsValid_shouldNotThrowIllegalArgumentException() {
-        assertDoesNotThrow(() -> lead.setEmail("jo@jo.com"));
+        String newValue = "jo@jo.com";
+        lead.setEmail(newValue);
+        assertEquals(newValue, lead.getEmail());
     }
 
 

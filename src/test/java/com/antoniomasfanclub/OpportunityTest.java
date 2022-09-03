@@ -2,8 +2,7 @@ package com.antoniomasfanclub;
 
 import org.junit.jupiter.api.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class OpportunityTest {
 
@@ -11,7 +10,6 @@ class OpportunityTest {
     Contact contact2;
 
     Opportunity opportunity1;
-
     Opportunity opportunity2;
 
 
@@ -36,10 +34,25 @@ class OpportunityTest {
        Assertions.assertThrows(IllegalArgumentException.class, () ->opportunity1.setStatus(null));
    }
 
-   @DisplayName("Test > 1")
-   @Test
-    void test_bigger_than_1(){
-        assertTrue(opportunity1.getQuantity() >1);
-   }
+    @DisplayName("Test opportunity quantity > 1")
+    @Test
+    void test_opportunity_quantity_bigger_than_1(){
+        int newValue = 1;
+        opportunity1.setQuantity(newValue);
+        assertEquals(newValue, opportunity1.getQuantity());
+    }
+
+    @DisplayName("Test opportunity quantity > 1")
+    @Test
+    void test_opportunity_quantity_throws_when_less_than_1(){
+        assertThrows( IllegalArgumentException.class, ()->opportunity1.setQuantity(-1));
+    }
+
+    @DisplayName("Contact should be updated easily")
+    @Test
+    void test_opportunity_set_contact(){
+        opportunity1.setContact(contact2);
+        assertEquals(contact2, opportunity1.getContact());
+    }
 
 }
