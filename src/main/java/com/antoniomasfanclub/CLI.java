@@ -198,8 +198,11 @@ public class CLI {
         try {
             if (userInput[1].equals("lost")) {
                 this.crm.getOpportunity(Integer.parseInt(userInput[2])).setStatus(Status.CLOSED_LOST);
+                printer.println("Opportunity closed as " + colourString(Colours.RED, "Lost"));
             } else if (userInput[1].equals("won")) {
                 this.crm.getOpportunity(Integer.parseInt(userInput[2])).setStatus(Status.CLOSED_WON);
+                printer.println("Opportunity closed as " + colourString(Colours.GREEN, "Won"));
+
             } else {
                 printer.println("Opportunities must be marked as " + colourString(Colours.RED, "lost") + " or " + colourString(Colours.GREEN, "won") + " when closing.");
             }
