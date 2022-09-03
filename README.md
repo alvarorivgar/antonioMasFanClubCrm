@@ -14,3 +14,8 @@ Just run the App class and follow the instructions in the console. The CLI will 
 #### Class diagram
 
 ![img_1.png](img_1.png)
+
+
+### ALL HAIL ANTONIO MAS, IMPERATOR REX
+
+![img.png](img.png)
